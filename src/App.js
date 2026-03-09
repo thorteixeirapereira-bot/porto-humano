@@ -391,31 +391,154 @@ const scoreInterests = (answers) => {
 };
 
 // ==================== QUESTIONÁRIOS ====================
+
+// DISC: cada pergunta tem exatamente uma opção por tipo (D, I, S, C).
+// O usuário escolhe a que mais se identifica, gerando um perfil real.
 const DISC_Q = [
-  {id:1,text:"Gosto de enfrentar desafios e situações de alta pressão no trabalho.",opts:[{t:"Sim, totalmente",d:"D"},{t:"Na maioria das vezes",d:"D"},{t:"Às vezes",d:"D"},{t:"Raramente",d:"D"}]},
-  {id:2,text:"Costumo tomar decisões rápidas e assumir a liderança em situações críticas.",opts:[{t:"Sempre",d:"D"},{t:"Frequentemente",d:"D"},{t:"Ocasionalmente",d:"D"},{t:"Raramente",d:"D"}]},
-  {id:3,text:"Busco resultados e metas ambiciosas, mesmo que exijam muito esforço.",opts:[{t:"Concordo totalmente",d:"D"},{t:"Concordo",d:"D"},{t:"Neutro",d:"D"},{t:"Discordo",d:"D"}]},
-  {id:4,text:"Não tenho medo de confrontos quando preciso defender minhas ideias.",opts:[{t:"Sempre",d:"D"},{t:"Frequentemente",d:"D"},{t:"Às vezes",d:"D"},{t:"Raramente",d:"D"}]},
-  {id:5,text:"Gosto de estar no controle das situações e de influenciar decisões importantes.",opts:[{t:"Concordo totalmente",d:"D"},{t:"Concordo",d:"D"},{t:"Neutro",d:"D"},{t:"Discordo",d:"D"}]},
-  {id:6,text:"Sou competitivo e gosto de superar meus próprios recordes e os dos outros.",opts:[{t:"Sempre",d:"D"},{t:"Frequentemente",d:"D"},{t:"Às vezes",d:"D"},{t:"Raramente",d:"D"}]},
-  {id:7,text:"Tenho facilidade para fazer novas amizades e me relacionar com pessoas.",opts:[{t:"Sempre",d:"I"},{t:"Frequentemente",d:"I"},{t:"Às vezes",d:"I"},{t:"Raramente",d:"I"}]},
-  {id:8,text:"Sou otimista e consigo motivar as pessoas ao meu redor.",opts:[{t:"Concordo totalmente",d:"I"},{t:"Concordo",d:"I"},{t:"Neutro",d:"I"},{t:"Discordo",d:"I"}]},
-  {id:9,text:"Gosto de trabalhar em equipe e colaborar com diferentes pessoas.",opts:[{t:"Sempre",d:"I"},{t:"Frequentemente",d:"I"},{t:"Às vezes",d:"I"},{t:"Raramente",d:"I"}]},
-  {id:10,text:"Tenho facilidade para me expressar e comunicar minhas ideias.",opts:[{t:"Concordo totalmente",d:"I"},{t:"Concordo",d:"I"},{t:"Neutro",d:"I"},{t:"Discordo",d:"I"}]},
-  {id:11,text:"Sou persuasivo e consigo convencer as pessoas sobre meus pontos de vista.",opts:[{t:"Sempre",d:"I"},{t:"Frequentemente",d:"I"},{t:"Às vezes",d:"I"},{t:"Raramente",d:"I"}]},
-  {id:12,text:"Gosto de ser o centro das atenções e de receber reconhecimento.",opts:[{t:"Concordo totalmente",d:"I"},{t:"Concordo",d:"I"},{t:"Neutro",d:"I"},{t:"Discordo",d:"I"}]},
-  {id:13,text:"Valorizo estabilidade e previsibilidade no ambiente de trabalho.",opts:[{t:"Concordo totalmente",d:"S"},{t:"Concordo",d:"S"},{t:"Neutro",d:"S"},{t:"Discordo",d:"S"}]},
-  {id:14,text:"Sou paciente e consigo ouvir as pessoas com atenção.",opts:[{t:"Sempre",d:"S"},{t:"Frequentemente",d:"S"},{t:"Às vezes",d:"S"},{t:"Raramente",d:"S"}]},
-  {id:15,text:"Gosto de ajudar meus colegas e apoiar a equipe sempre que possível.",opts:[{t:"Sempre",d:"S"},{t:"Frequentemente",d:"S"},{t:"Às vezes",d:"S"},{t:"Raramente",d:"S"}]},
-  {id:16,text:"Prefiro processos consistentes e bem definidos a mudanças constantes.",opts:[{t:"Concordo totalmente",d:"S"},{t:"Concordo",d:"S"},{t:"Neutro",d:"S"},{t:"Discordo",d:"S"}]},
-  {id:17,text:"Sou leal e comprometido com a equipe e a organização.",opts:[{t:"Sempre",d:"S"},{t:"Frequentemente",d:"S"},{t:"Às vezes",d:"S"},{t:"Raramente",d:"S"}]},
-  {id:18,text:"Busco ambientes harmoniosos e evito conflitos desnecessários.",opts:[{t:"Concordo totalmente",d:"S"},{t:"Concordo",d:"S"},{t:"Neutro",d:"S"},{t:"Discordo",d:"S"}]},
-  {id:19,text:"Sou detalhista e gosto de seguir procedimentos à risca.",opts:[{t:"Sempre",d:"C"},{t:"Frequentemente",d:"C"},{t:"Às vezes",d:"C"},{t:"Raramente",d:"C"}]},
-  {id:20,text:"Valorizo qualidade e precisão em tudo que faço.",opts:[{t:"Concordo totalmente",d:"C"},{t:"Concordo",d:"C"},{t:"Neutro",d:"C"},{t:"Discordo",d:"C"}]},
-  {id:21,text:"Gosto de analisar dados antes de tomar decisões importantes.",opts:[{t:"Sempre",d:"C"},{t:"Frequentemente",d:"C"},{t:"Às vezes",d:"C"},{t:"Raramente",d:"C"}]},
-  {id:22,text:"Sou organizado e gosto de planejar minhas atividades com antecedência.",opts:[{t:"Concordo totalmente",d:"C"},{t:"Concordo",d:"C"},{t:"Neutro",d:"C"},{t:"Discordo",d:"C"}]},
-  {id:23,text:"Busco fazer as coisas da maneira correta, mesmo que leve mais tempo.",opts:[{t:"Sempre",d:"C"},{t:"Frequentemente",d:"C"},{t:"Às vezes",d:"C"},{t:"Raramente",d:"C"}]},
-  {id:24,text:"Questiono informações inconsistentes e busco sempre a verdade dos fatos.",opts:[{t:"Sempre",d:"C"},{t:"Frequentemente",d:"C"},{t:"Às vezes",d:"C"},{t:"Raramente",d:"C"}]},
+  {id:1, text:"Qual adjetivo melhor descreve você no trabalho?", opts:[
+    {t:"Determinado e orientado a resultados", d:"D"},
+    {t:"Entusiasta e comunicativo", d:"I"},
+    {t:"Paciente e colaborativo", d:"S"},
+    {t:"Preciso e analítico", d:"C"}
+  ]},
+  {id:2, text:"Em situações de alta pressão, você:", opts:[
+    {t:"Age rapidamente e assume o controle", d:"D"},
+    {t:"Mantém o otimismo e energiza a equipe", d:"I"},
+    {t:"Mantém a calma e apoia os colegas", d:"S"},
+    {t:"Analisa os fatos com cuidado antes de agir", d:"C"}
+  ]},
+  {id:3, text:"Seu maior ponto forte no trabalho é:", opts:[
+    {t:"Foco em resultados e cumprimento de metas", d:"D"},
+    {t:"Facilidade de comunicação e persuasão", d:"I"},
+    {t:"Consistência, lealdade e confiabilidade", d:"S"},
+    {t:"Atenção aos detalhes e busca por qualidade", d:"C"}
+  ]},
+  {id:4, text:"Como você prefere tomar decisões importantes?", opts:[
+    {t:"Rápido e com confiança nas próprias convicções", d:"D"},
+    {t:"Baseando-me na intuição e no impacto nas pessoas", d:"I"},
+    {t:"Com calma, ouvindo todos os envolvidos", d:"S"},
+    {t:"Com dados, análise e planejamento cuidadoso", d:"C"}
+  ]},
+  {id:5, text:"O que mais te motiva no ambiente de trabalho?", opts:[
+    {t:"Superar desafios e conquistar metas ambiciosas", d:"D"},
+    {t:"Reconhecimento, interação e trabalho em equipe", d:"I"},
+    {t:"Estabilidade, harmonia e bons relacionamentos", d:"S"},
+    {t:"Qualidade, excelência e fazer as coisas certas", d:"C"}
+  ]},
+  {id:6, text:"Diante de um conflito, você tende a:", opts:[
+    {t:"Enfrentar diretamente e resolver de imediato", d:"D"},
+    {t:"Conversar abertamente e tentar convencer", d:"I"},
+    {t:"Evitar e buscar conciliação e harmonia", d:"S"},
+    {t:"Analisar quem está certo baseando-se em fatos", d:"C"}
+  ]},
+  {id:7, text:"Como os seus colegas costumam te descrever?", opts:[
+    {t:"Direto, focado e determinado", d:"D"},
+    {t:"Animado, sociável e inspirador", d:"I"},
+    {t:"Calmo, prestativo e confiável", d:"S"},
+    {t:"Organizado, meticuloso e cuidadoso", d:"C"}
+  ]},
+  {id:8, text:"Ao iniciar um novo projeto, sua abordagem é:", opts:[
+    {t:"Assumir o comando e agir rapidamente", d:"D"},
+    {t:"Apresentar ideias e engajar as pessoas", d:"I"},
+    {t:"Garantir que todos estejam alinhados antes", d:"S"},
+    {t:"Elaborar um planejamento detalhado", d:"C"}
+  ]},
+  {id:9, text:"O que mais te incomoda no trabalho?", opts:[
+    {t:"Lentidão, burocracia e falta de resultados", d:"D"},
+    {t:"Rotina sem interação social e sem novidades", d:"I"},
+    {t:"Mudanças constantes e ambiente imprevisível", d:"S"},
+    {t:"Erros, imprecisões e falta de padrões claros", d:"C"}
+  ]},
+  {id:10, text:"Ao liderar uma equipe, você prioriza:", opts:[
+    {t:"Resultados concretos e metas claras", d:"D"},
+    {t:"Engajamento, motivação e moral do grupo", d:"I"},
+    {t:"Harmonia, bem-estar e coesão da equipe", d:"S"},
+    {t:"Processos corretos, qualidade e rigor", d:"C"}
+  ]},
+  {id:11, text:"Em reuniões, você costuma:", opts:[
+    {t:"Defender sua posição com firmeza e objetividade", d:"D"},
+    {t:"Falar bastante, animar o grupo e propor ideias", d:"I"},
+    {t:"Ouvir com atenção e apoiar o consenso", d:"S"},
+    {t:"Apresentar dados, análises e questionar detalhes", d:"C"}
+  ]},
+  {id:12, text:"Qual é sua maior necessidade no trabalho?", opts:[
+    {t:"Autonomia e liberdade para agir", d:"D"},
+    {t:"Reconhecimento, aprovação e interação", d:"I"},
+    {t:"Segurança, estabilidade e previsibilidade", d:"S"},
+    {t:"Clareza, processos bem definidos e padrões", d:"C"}
+  ]},
+  {id:13, text:"Seu estilo de comunicação é:", opts:[
+    {t:"Direto, objetivo e assertivo", d:"D"},
+    {t:"Expressivo, entusiástico e envolvente", d:"I"},
+    {t:"Gentil, atencioso e paciente", d:"S"},
+    {t:"Formal, preciso e bem fundamentado", d:"C"}
+  ]},
+  {id:14, text:"Como você reage a mudanças no trabalho?", opts:[
+    {t:"Abraça se trouxer resultados melhores mais rápido", d:"D"},
+    {t:"Se anima com as novas possibilidades", d:"I"},
+    {t:"Prefere mudanças graduais e bem planejadas", d:"S"},
+    {t:"Avalia riscos e impactos antes de aceitar", d:"C"}
+  ]},
+  {id:15, text:"Ao receber uma nova tarefa desafiadora, você:", opts:[
+    {t:"Define o objetivo e começa a agir imediatamente", d:"D"},
+    {t:"Compartilha com alguém e discute ideias", d:"I"},
+    {t:"Verifica como encaixa na rotina e planeja com calma", d:"S"},
+    {t:"Levanta todos os requisitos e detalhes antes de começar", d:"C"}
+  ]},
+  {id:16, text:"O que você mais valoriza em uma equipe?", opts:[
+    {t:"Eficiência, agilidade e foco em resultados", d:"D"},
+    {t:"Criatividade, bom humor e relacionamento", d:"I"},
+    {t:"Cooperação, lealdade e espírito de equipe", d:"S"},
+    {t:"Competência técnica e compromisso com qualidade", d:"C"}
+  ]},
+  {id:17, text:"Você se sente mais realizado quando:", opts:[
+    {t:"Alcança uma meta desafiadora ou supera um obstáculo", d:"D"},
+    {t:"Recebe elogios e reconhecimento pelo seu trabalho", d:"I"},
+    {t:"Sente que foi útil e contribuiu para a equipe", d:"S"},
+    {t:"Entrega um trabalho impecável e sem erros", d:"C"}
+  ]},
+  {id:18, text:"Na hora de resolver um problema complexo, você:", opts:[
+    {t:"Age logo com base na experiência e ajusta no caminho", d:"D"},
+    {t:"Busca opiniões diversas e faz brainstorm", d:"I"},
+    {t:"Segue os procedimentos já estabelecidos", d:"S"},
+    {t:"Pesquisa, analisa profundamente e busca a melhor solução", d:"C"}
+  ]},
+  {id:19, text:"Como você lida com prazos apertados?", opts:[
+    {t:"Foca totalmente e entrega, sem desculpas", d:"D"},
+    {t:"Se energiza com a pressão mas pode se dispersar", d:"I"},
+    {t:"Planeja com antecedência para não se estressar", d:"S"},
+    {t:"Organiza todas as etapas com muito cuidado", d:"C"}
+  ]},
+  {id:20, text:"Qual é o seu maior desafio pessoal no trabalho?", opts:[
+    {t:"Ouvir mais e desacelerar antes de agir", d:"D"},
+    {t:"Manter o foco e ser mais organizado", d:"I"},
+    {t:"Lidar melhor com mudanças e imprevistos", d:"S"},
+    {t:"Ser mais flexível e menos perfeccionista", d:"C"}
+  ]},
+  {id:21, text:"Em trabalhos em grupo, você costuma:", opts:[
+    {t:"Assumir a liderança naturalmente", d:"D"},
+    {t:"Motivar o grupo e manter o ânimo", d:"I"},
+    {t:"Apoiar os colegas e garantir coesão", d:"S"},
+    {t:"Revisar o trabalho e garantir que esteja correto", d:"C"}
+  ]},
+  {id:22, text:"Seu ambiente de trabalho ideal é:", opts:[
+    {t:"Desafiador, dinâmico e com liberdade de ação", d:"D"},
+    {t:"Animado, com muita interação e colaboração social", d:"I"},
+    {t:"Estável, harmonioso e com boas relações", d:"S"},
+    {t:"Organizado, silencioso e com processos claros", d:"C"}
+  ]},
+  {id:23, text:"Como as pessoas te percebem na organização?", opts:[
+    {t:"Um executor que entrega resultados consistentes", d:"D"},
+    {t:"Uma pessoa carismática, influente e inspiradora", d:"I"},
+    {t:"Um apoio confiável e estável para a equipe", d:"S"},
+    {t:"Um especialista criterioso, rigoroso e confiável", d:"C"}
+  ]},
+  {id:24, text:"Em momentos de crise organizacional, você:", opts:[
+    {t:"Assume o comando e lidera a solução", d:"D"},
+    {t:"Mantém o moral e inspira o grupo a seguir em frente", d:"I"},
+    {t:"Oferece suporte emocional e estabilidade à equipe", d:"S"},
+    {t:"Diagnostica a causa raiz e propõe uma solução estruturada", d:"C"}
+  ]},
 ];
 
 const BF_Q = [
@@ -645,7 +768,7 @@ const DiscTest = ({ existing, onComplete }) => {
         <span style={{fontSize:'24px'}}>🧭</span>
         <div style={{flex:1}}>
           <h2 style={{margin:'0 0 2px',fontSize:isMobile?'18px':'22px'}}>Teste DISC</h2>
-          <p style={{margin:0,fontSize:'12px',color:T.textS}}>{total} questões · Perfil comportamental</p>
+          <p style={{margin:0,fontSize:'12px',color:T.textS}}>{total} questões · Escolha a opção que mais representa você</p>
         </div>
         <div style={{textAlign:'right'}}>
           <div style={{fontSize:'18px',fontWeight:800,color:T.gold}}>{current+1}/{total}</div>
