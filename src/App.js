@@ -46,9 +46,50 @@ const T = {
   purple: '#7C3AED', purpleL: '#A78BFA', text: '#F1F5F9', textS: '#8AA0B8', textM: '#4A6278',
 };
 
+// ==================== FIX 1: CHART WRAPPER ====================
+// Envolver ResponsiveContainer num div com height em px garante que o Recharts
+// sempre tenha dimensões no primeiro render dentro de containers flex.
+// Sem isso, o dashboard abre com o gráfico preto (width=0 no primeiro render).
+const ChartBox = ({ height = 180, children }) => (
+  <div style={{ width: '100%', height: `${height}px`, position: 'relative' }}>
+    <ResponsiveContainer width="100%" height="100%">
+      {children}
+    </ResponsiveContainer>
+  </div>
+);
+
 // ==================== GLOBAL STYLES ====================
 const injectGlobalStyles = () => {
   if (document.getElementById('ph-styles')) return;
+
+  // ==================== FIX 2: ANTI-TRADUÇÃO MOBILE ====================
+  // O Chrome no celular detecta PT-BR e traduz termos em inglês automaticamente:
+  // DISC → "Disco", Big Five → "Cinco Grandes", etc.
+  // Essa tradução modifica nós do DOM diretamente, quebrando a reconciliação
+  // do React → app crasha e tela fica completamente preta no celular.
+  // Solução: marcar o documento inteiro como "não traduzir".
+  const html = document.documentElement;
+  html.setAttribute('translate', 'no');
+  html.setAttribute('lang', 'pt-BR');
+  html.classList.add('notranslate');
+  if (!document.querySelector('meta[name="google"]')) {
+    const meta = document.createElement('meta');
+    meta.name = 'google';
+    meta.content = 'notranslate';
+    document.head.appendChild(meta);
+  }
+  // Aplica também no root do React (Chrome às vezes só traduz elementos filhos)
+  const applyToRoot = () => {
+    const root = document.getElementById('root');
+    if (root) {
+      root.setAttribute('translate', 'no');
+      root.classList.add('notranslate');
+    }
+  };
+  applyToRoot();
+  setTimeout(applyToRoot, 500);
+  // =====================================================================
+
   const style = document.createElement('style');
   style.id = 'ph-styles';
   style.innerHTML = `
@@ -391,9 +432,6 @@ const scoreInterests = (answers) => {
 };
 
 // ==================== QUESTIONÁRIOS ====================
-
-// DISC: cada pergunta tem exatamente uma opção por tipo (D, I, S, C).
-// O usuário escolhe a que mais se identifica, gerando um perfil real.
 const DISC_Q = [
   {id:1, text:"Qual adjetivo melhor descreve você no trabalho?", opts:[
     {t:"Determinado e orientado a resultados", d:"D"},
@@ -919,14 +957,15 @@ const ValuesTest = ({ existing, onComplete }) => {
           </div>
           <Card>
             <h4 style={{margin:'0 0 14px',fontSize:'13px'}}>Mapa de Valores</h4>
-            <ResponsiveContainer width="100%" height={280}>
+            {/* FIX: ChartBox garante height explícita no primeiro render */}
+            <ChartBox height={280}>
               <BarChart data={scores.slice(0,8).map(i=>({name:i.v.substring(0,10),value:i.s}))} layout="vertical" margin={{left:0,right:16}}>
                 <XAxis type="number" domain={[0,5]} tick={{fill:T.textS,fontSize:10}}/>
                 <YAxis type="category" dataKey="name" tick={{fill:T.textS,fontSize:10}} width={72}/>
                 <Tooltip contentStyle={{background:T.surf2,border:`1px solid ${T.border}`,borderRadius:8,color:T.text}}/>
                 <Bar dataKey="value" fill={T.gold} radius={[0,6,6,0]} name="Nível"/>
               </BarChart>
-            </ResponsiveContainer>
+            </ChartBox>
           </Card>
         </div>
       </div>
@@ -998,14 +1037,15 @@ const EQTest = ({ existing, onComplete }) => {
           </div>
           <Card>
             <h4 style={{margin:'0 0 14px',fontSize:'13px'}}>Radar Emocional</h4>
-            <ResponsiveContainer width="100%" height={260}>
+            {/* FIX: ChartBox garante height explícita no primeiro render */}
+            <ChartBox height={260}>
               <BarChart data={dims.map(d=>({name:d.substring(0,10),value:scores[d]||0}))} margin={{top:8,bottom:16}}>
                 <XAxis dataKey="name" tick={{fill:T.textS,fontSize:9}}/>
                 <YAxis domain={[0,100]} tick={{fill:T.textS,fontSize:9}}/>
                 <Tooltip contentStyle={{background:T.surf2,border:`1px solid ${T.border}`,borderRadius:8,color:T.text}}/>
                 <Bar dataKey="value" fill={T.orange} radius={[4,4,0,0]} name="%"/>
               </BarChart>
-            </ResponsiveContainer>
+            </ChartBox>
           </Card>
         </div>
       </div>
@@ -1077,7 +1117,8 @@ const InterestsTest = ({ existing, onComplete }) => {
           </div>
           <Card>
             <h4 style={{margin:'0 0 12px',fontSize:'13px'}}>Todas as Áreas</h4>
-            <ResponsiveContainer width="100%" height={320}>
+            {/* FIX: ChartBox garante height explícita no primeiro render */}
+            <ChartBox height={320}>
               <BarChart data={scores.slice(0,8).map(s=>({name:s.area.substring(0,14),value:s.score}))} layout="vertical" margin={{left:0,right:16}}>
                 <XAxis type="number" domain={[0,100]} tick={{fill:T.textS,fontSize:9}}/>
                 <YAxis type="category" dataKey="name" tick={{fill:T.textS,fontSize:9}} width={82}/>
@@ -1086,7 +1127,7 @@ const InterestsTest = ({ existing, onComplete }) => {
                   {scores.slice(0,8).map((_,i)=><Cell key={i} fill={i<3?T.purple:T.blue}/>)}
                 </Bar>
               </BarChart>
-            </ResponsiveContainer>
+            </ChartBox>
           </Card>
         </div>
       </div>
@@ -1701,7 +1742,8 @@ const ManagerDashboard = ({ users, allResults, allPDIs, allNotifications, setScr
       <div style={{display:'grid',gridTemplateColumns:isMobile?'1fr':'2fr 1fr',gap:isMobile?'14px':'20px',marginBottom:'20px'}}>
         <Card>
           <h4 style={{margin:'0 0 14px',fontSize:'14px'}}>Progresso da Equipe</h4>
-          <ResponsiveContainer width="100%" height={isMobile?140:180}>
+          {/* FIX: ChartBox resolve tela preta no dashboard no primeiro render */}
+          <ChartBox height={isMobile?140:180}>
             <BarChart data={completionData}>
               <CartesianGrid strokeDasharray="3 3" stroke={T.border}/>
               <XAxis dataKey="name" tick={{fill:T.textS,fontSize:10}}/>
@@ -1709,7 +1751,7 @@ const ManagerDashboard = ({ users, allResults, allPDIs, allNotifications, setScr
               <Tooltip contentStyle={{background:T.surf2,border:`1px solid ${T.border}`,borderRadius:8,color:T.text}}/>
               <Bar dataKey="pct" fill={T.gold} radius={[5,5,0,0]} name="Completude %"/>
             </BarChart>
-          </ResponsiveContainer>
+          </ChartBox>
         </Card>
         <Card>
           <h4 style={{margin:'0 0 14px',fontSize:'14px'}}>Por Área</h4>
@@ -2083,7 +2125,8 @@ const ManagerReports = ({ users, allResults, allPDIs, allNotifications }) => {
       <div className="grid-2" style={{marginBottom:'16px'}}>
         <Card>
           <h4 style={{margin:'0 0 14px',fontSize:'13px'}}>Completude por Teste</h4>
-          <ResponsiveContainer width="100%" height={isMobile?140:180}>
+          {/* FIX: ChartBox garante height explícita no primeiro render */}
+          <ChartBox height={isMobile?140:180}>
             <BarChart data={completionByTest}>
               <CartesianGrid strokeDasharray="3 3" stroke={T.border}/>
               <XAxis dataKey="name" tick={{fill:T.textS,fontSize:10}}/>
@@ -2091,11 +2134,12 @@ const ManagerReports = ({ users, allResults, allPDIs, allNotifications }) => {
               <Tooltip contentStyle={{background:T.surf2,border:`1px solid ${T.border}`,borderRadius:8,color:T.text}}/>
               <Bar dataKey="done" fill={T.teal} radius={[4,4,0,0]} name="Concluídos"/>
             </BarChart>
-          </ResponsiveContainer>
+          </ChartBox>
         </Card>
         <Card>
           <h4 style={{margin:'0 0 14px',fontSize:'13px'}}>Distribuição DISC</h4>
-          <ResponsiveContainer width="100%" height={isMobile?140:180}>
+          {/* FIX: ChartBox garante height explícita no primeiro render */}
+          <ChartBox height={isMobile?140:180}>
             <PieChart>
               <Pie data={discChart} cx="50%" cy="50%" outerRadius={isMobile?50:70} dataKey="value">
                 {discChart.map((e,i)=><Cell key={i} fill={e.fill}/>)}
@@ -2103,7 +2147,7 @@ const ManagerReports = ({ users, allResults, allPDIs, allNotifications }) => {
               <Tooltip contentStyle={{background:T.surf2,border:`1px solid ${T.border}`,borderRadius:8,color:T.text}}/>
               <Legend wrapperStyle={{color:T.textS,fontSize:10}}/>
             </PieChart>
-          </ResponsiveContainer>
+          </ChartBox>
         </Card>
       </div>
       <div className="grid-2">
